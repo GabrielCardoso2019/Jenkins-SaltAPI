@@ -1,14 +1,30 @@
-pipeline {
-    agent any
-    stages {
-        stage('Build') {
-            steps {
-                sh 'echo "Hello World"'
-                sh '''
-                   echo "Multiline shell steps works too"
-                   ls -lah
-                '''
-            }
-        }
+#pipeline {
+#    agent any
+#    stages {
+#        stage('Build') {
+#            steps {
+#                sh 'echo "Hello World"'
+#                sh '''
+#                   echo "Multiline shell steps works too"
+#                   ls -lah
+#                '''
+#            }
+#        }
+#    }
+#}
+
+
+node {
+    token=''
+    
+    stage('Searching Token') {
+        withCredentials([UsernamePassword(credentialsId: '9b3beef5-b504-4423-8cba-86db98a117c',
+        passwordVariable: 'C_PASS', usernameVariable: 'C_USER')]) {
+       
+        conection=sh (returnStdout, script:"curl -sSk https://172.17.0.3:8000/login -H 'Accept: application/x-yaml' -d username=$C_USER -d password=$C_PASS -d eauth=pam")
+        token=conection.split('token: ')[1].split('user: ')[0].trim()
     }
 }
+
+    stage('Execute') {
+        sh "curl -sSk https://172.17.0.3:8000 -H 'Accept: application/x-yaml' -H 'X-Auth-Token: $token' -d client=local -d tgt='*' -d arg=test.ping"
