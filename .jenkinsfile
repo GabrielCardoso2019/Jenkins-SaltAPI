@@ -12,3 +12,7 @@ node {
 
     stage('Execute') {
         sh "curl -sSk https://172.17.0.3:8000 -H 'Accept: application/x-yaml' -H 'X-Auth-Token: $token' -d client=local -d tgt='*' -d arg=test.ping"
+
+    }
+}
+
